@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SADA AI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#020602;color:#39ff14;font-family:"Courier New",monospace;height:100vh}
+.app{max-width:760px;margin:auto;height:100vh;display:flex;flex-direction:column;background:radial-gradient(#092009,#010301 70%)}
+header{padding:15px;border-bottom:1px solid #20ff00;display:flex;align-items:center;justify-content:space-between;box-shadow:0 0 14px #0f0}
+.brand{font-size:29px;font-weight:bold;text-shadow:0 0 10px #39ff14}.sub{font-size:11px;margin-top:4px}
+button{font:inherit;border:1px solid #39ff14;background:#031003;color:#39ff14;padding:9px 11px;border-radius:8px}
+#chat{flex:1;overflow:auto;padding:15px;border-left:1px solid #18d600;border-right:1px solid #18d600}
+.status{border:1px solid #19ff00;padding:11px;margin-bottom:14px;line-height:1.6;box-shadow:inset 0 0 12px #062e06;font-size:13px}
+.msg{max-width:86%;padding:12px;margin:10px 0;border:1px solid #25ff12;border-radius:10px;line-height:1.45;white-space:pre-wrap;text-shadow:0 0 4px #39ff14}
+.user{margin-left:auto;background:#061506}.ai{background:#020b02}
+form{display:flex;gap:8px;padding:11px;border:1px solid #1aff00}
+input{flex:1;background:#010501;color:#39ff14;border:1px solid #25ff12;border-radius:8px;padding:13px;font:inherit;outline:none}
+input::placeholder{color:#238b19}.send{background:#39ff14;color:#001000;font-weight:bold}
+.scan{pointer-events:none;position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(57,255,20,.025) 0,rgba(57,255,20,.025) 1px,transparent 1px,transparent 4px)}
+</style>
+</head>
+<body>
+<div class="scan"></div><div class="app">
+<header><div><div class="brand">SADA AI</div><div class="sub">[ YOUR PERSONAL AI ASSISTANT ]</div></div><button id="new">NEW CHAT ＋</button></header>
+<div id="chat"><div class="status">SYSTEM STATUS: ONLINE<br>MODEL: SADA-AI<br>SECURE BACKEND: CONNECTED</div>
+<div class="msg ai">Hello Sada! 👋<br>Main Sada AI hoon. Kuch bhi poochho.</div></div>
+<form id="form"><input id="input" autocomplete="off" placeholder="Type your message..."><button class="send">➤</button></form>
+</div>
+<script>
+const chat=document.querySelector("#chat"), input=document.querySelector("#input");
+function add(text,who){const d=document.createElement("div");d.className="msg "+who;d.textContent=text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+document.querySelector("#new").onclick=()=>{chat.innerHTML='<div class="status">SYSTEM STATUS: ONLINE<br>MODEL: SADA-AI<br>SECURE BACKEND: CONNECTED</div>';add("New chat started! >_","ai")}
+document.querySelector("#form").onsubmit=async e=>{
+ e.preventDefault(); const q=input.value.trim(); if(!q)return; add(q,"user"); input.value="";
+ const loading=document.createElement("div");loading.className="msg ai";loading.textContent="Thinking...";chat.appendChild(loading);
+ try{
+  const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:q})});
+  const data=await r.json(); loading.remove(); add(data.reply || data.error || "No response.","ai");
+ }catch(err){loading.remove();add("Connection error. Backend start hua hai?","ai")}
+};
+</script></body></html>
